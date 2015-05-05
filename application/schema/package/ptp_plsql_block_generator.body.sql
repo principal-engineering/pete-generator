@@ -93,7 +93,7 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
         a_in_out_in        IN gtyp_in_out,
         a_subprogram_id_in IN user_arguments.subprogram_id%TYPE DEFAULT NULL,
         a_overload_in      IN user_arguments.overload%TYPE DEFAULT NULL
-    ) RETURN VARCHAR2 IS
+    ) RETURN CLOB IS
         l_argument_type_spec_tpl     VARCHAR(32767) --
         := 'create or replace type #TypeName# as object (' || chr(10) || --
            '  #AttributesDefinitionList#,' || chr(10) || --
@@ -103,7 +103,10 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
            ');';
         ltab_type_argument_lists     gtyp_type_argument_lists_tab;
         lrec_metadata_mtds_api_types ptm_metadata_methods_api_types%ROWTYPE;
+        l_result                     CLOB;
     BEGIN
+        --
+        dbms_lob.createtemporary(lob_loc => l_result, cache => FALSE);
         --
         --get method metadata - raise exception if too many rows
         lrec_metadata_mtds_api_types := get_metadata_methods_api_types(a_package_name_in  => a_package_name_in,
@@ -125,24 +128,31 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
             RAISE too_many_rows;
         ELSIF ltab_type_argument_lists.count = 0
         THEN
-            RETURN REPLACE(REPLACE(REPLACE(l_argument_type_spec_tpl,
-                                           '#TypeName#',
-                                           CASE a_in_out_in WHEN 'IN' THEN
-                                           lrec_metadata_mtds_api_types.input_type_name ELSE
-                                           lrec_metadata_mtds_api_types.output_type_name END),
-                                   '#AttributesConstructorList#',
-                                   'dummy number default null'),
-                           '#AttributesDefinitionList#',
-                           'dummy number');
+            l_result := REPLACE(REPLACE(REPLACE(l_argument_type_spec_tpl,
+                                                '#TypeName#',
+                                                CASE a_in_out_in
+                                                    WHEN 'IN' THEN
+                                                     lrec_metadata_mtds_api_types.input_type_name
+                                                    ELSE
+                                                     lrec_metadata_mtds_api_types.output_type_name
+                                                END),
+                                        '#AttributesConstructorList#',
+                                        'dummy number default null'),
+                                '#AttributesDefinitionList#',
+                                'dummy number');
+            RETURN l_result;
         ELSE
-            RETURN REPLACE(REPLACE(REPLACE(l_argument_type_spec_tpl,
-                                           '#TypeName#',
-                                           ltab_type_argument_lists(1).type_name),
-                                   '#AttributesConstructorList#',
-                                   ltab_type_argument_lists(1)
-                                   .type_attr_constructor_list),
-                           '#AttributesDefinitionList#',
-                           ltab_type_argument_lists(1).type_attr_definition_list);
+            l_result := REPLACE(REPLACE(REPLACE(l_argument_type_spec_tpl,
+                                                '#TypeName#',
+                                                ltab_type_argument_lists(1)
+                                                .type_name),
+                                        '#AttributesConstructorList#',
+                                        ltab_type_argument_lists(1)
+                                        .type_attr_constructor_list),
+                                '#AttributesDefinitionList#',
+                                ltab_type_argument_lists(1)
+                                .type_attr_definition_list);
+            RETURN l_result;
         END IF;
     EXCEPTION
         WHEN too_many_rows THEN
@@ -165,7 +175,7 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
         a_in_out_in        IN gtyp_in_out,
         a_subprogram_id_in IN user_arguments.subprogram_id%TYPE DEFAULT NULL,
         a_overload_in      IN user_arguments.overload%TYPE DEFAULT NULL
-    ) RETURN VARCHAR2 IS
+    ) RETURN CLOB IS
         l_argument_type_body_tpl     VARCHAR(32767) --
         := 'create or replace type body #TypeName# as' || chr(10) || --
            '  constructor function #TypeName# (self in out nocopy #TypeName#,' ||
@@ -177,7 +187,10 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
            'end;';
         ltab_type_argument_lists     gtyp_type_argument_lists_tab;
         lrec_metadata_mtds_api_types ptm_metadata_methods_api_types%ROWTYPE;
+        l_result                     CLOB;
     BEGIN
+        --
+        dbms_lob.createtemporary(lob_loc => l_result, cache => FALSE);
         --
         --get method metadata - raise exception if too many rows
         lrec_metadata_mtds_api_types := get_metadata_methods_api_types(a_package_name_in  => a_package_name_in,
@@ -199,20 +212,25 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
             RAISE too_many_rows;
         ELSIF ltab_type_argument_lists.count = 0
         THEN
-            RETURN REPLACE(REPLACE(l_argument_type_body_tpl,
-                                   '#TypeName#',
-                                   CASE a_in_out_in WHEN 'IN' THEN
-                                   lrec_metadata_mtds_api_types.input_type_name ELSE
-                                   lrec_metadata_mtds_api_types.output_type_name END),
-                           '#AttributesConstructorList#',
-                           'dummy number default null');
+            l_result := REPLACE(REPLACE(l_argument_type_body_tpl,
+                                        '#TypeName#',
+                                        CASE a_in_out_in
+                                            WHEN 'IN' THEN
+                                             lrec_metadata_mtds_api_types.input_type_name
+                                            ELSE
+                                             lrec_metadata_mtds_api_types.output_type_name
+                                        END),
+                                '#AttributesConstructorList#',
+                                'dummy number default null');
+            RETURN l_result;
         ELSE
-            RETURN REPLACE(REPLACE(l_argument_type_body_tpl,
-                                   '#TypeName#',
-                                   ltab_type_argument_lists(1).type_name),
-                           '#AttributesConstructorList#',
-                           ltab_type_argument_lists(1)
-                           .type_attr_constructor_list);
+            l_result := REPLACE(REPLACE(l_argument_type_body_tpl,
+                                        '#TypeName#',
+                                        ltab_type_argument_lists(1).type_name),
+                                '#AttributesConstructorList#',
+                                ltab_type_argument_lists(1)
+                                .type_attr_constructor_list);
+            RETURN l_result;
         END IF;
     EXCEPTION
         WHEN too_many_rows THEN
@@ -234,19 +252,22 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
         a_method_name_in   IN VARCHAR2,
         a_subprogram_id_in IN INTEGER DEFAULT NULL,
         a_overload_in      IN INTEGER DEFAULT NULL
-    ) RETURN VARCHAR2 IS
+    ) RETURN CLOB IS
         --
         --method implementation template  
         l_method_implementation_tpl VARCHAR2(32767) --
         := 'procedure #UxMethodName#' || chr(10) || --
            '  (' || chr(10) || --
-           '    p_xml_in  in xmltype,' || chr(10) || --
-           '    p_xml_out out nocopy xmltype' || chr(10) || --
+           '    a_xml_in  in xmltype,' || chr(10) || --
+           '    a_xml_out out nocopy xmltype' || chr(10) || --
            '  );' || chr(10) --
          ;
         --
         lrec_metadata_mtds_api_types ptm_metadata_methods_api_types%ROWTYPE;
+        l_result                     CLOB;
     BEGIN
+        --
+        dbms_lob.createtemporary(lob_loc => l_result, cache => FALSE);
         --
         --get method metadata - raise exception if too many rows
         lrec_metadata_mtds_api_types := get_metadata_methods_api_types(a_package_name_in  => a_package_name_in,
@@ -267,14 +288,14 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
         a_method_name_in   IN VARCHAR2,
         a_subprogram_id_in IN INTEGER DEFAULT NULL,
         a_overload_in      IN INTEGER DEFAULT NULL
-    ) RETURN VARCHAR2 IS
+    ) RETURN CLOB IS
         --
         --method implementation template  
         l_method_implementation_tpl VARCHAR2(32767) --
         := 'procedure #UxMethodName#' || chr(10) || --
            '  (' || chr(10) || --
-           '    p_xml_in  in xmltype,' || chr(10) || --
-           '    p_xml_out out nocopy xmltype' || chr(10) || --
+           '    a_xml_in  in xmltype,' || chr(10) || --
+           '    a_xml_out out nocopy xmltype' || chr(10) || --
            '  ) is' || chr(10) || --
            '  l_params_in  #InputTypeName#;' || chr(10) || --
            '  l_params_out #OutputTypeName# := #OutputTypeName#();' || chr(10) || --
@@ -284,7 +305,7 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
            'begin' || chr(10) || --
            '  --' || chr(10) || --
            '  --create input params object from xml' || chr(10) || --
-           '  p_xml_in.toobject(object => l_params_in);' || chr(10) || --
+           '  a_xml_in.toobject(object => l_params_in);' || chr(10) || --
            '  --' || chr(10) || --
            '  --for all in/out arguments assign in/out arguments of output params object' ||
            chr(10) || --
@@ -298,7 +319,7 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
            '  #RefCrsToXml#' || --
            '  --' || chr(10) || --
            '  --convert output parameters object to xml' || chr(10) || --
-           '  p_xml_out := xmltype.createxml(xmlData => l_params_out);' ||
+           '  a_xml_out := xmltype.createxml(xmlData => l_params_out);' ||
            chr(10) || --
            '  --' || chr(10) || --
            'end #UxMethodName#;';
@@ -386,8 +407,9 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
              ORDER BY position;
         --
         lrec_metadata_mtds_api_types ptm_metadata_methods_api_types%ROWTYPE;
-        l_sql                        VARCHAR2(32767);
+        l_sql                        CLOB;
     BEGIN
+        dbms_lob.createtemporary(lob_loc => l_sql, cache => FALSE);
         --
         --get method metadata - raise exception if too many rows
         lrec_metadata_mtds_api_types := get_metadata_methods_api_types(a_package_name_in  => a_package_name_in,
@@ -459,8 +481,8 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
     --------------------------------------------------------------------------------
     FUNCTION get_wrapper_package_spec(a_package_name_in IN user_arguments.package_name%TYPE)
         RETURN CLOB IS
-        l_result       CLOB;
         l_package_name VARCHAR2(30);
+        l_result       CLOB;
     BEGIN
         --
         dbms_lob.createtemporary(lob_loc => l_result, cache => FALSE);
@@ -494,8 +516,8 @@ CREATE OR REPLACE PACKAGE BODY ptp_plsql_block_generator AS
     --------------------------------------------------------------------------------
     FUNCTION get_wrapper_package_body(a_package_name_in IN user_arguments.package_name%TYPE)
         RETURN CLOB IS
-        l_result       CLOB;
         l_package_name VARCHAR2(30);
+        l_result       CLOB;
     BEGIN
         --
         dbms_lob.createtemporary(lob_loc => l_result, cache => FALSE);

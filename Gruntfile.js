@@ -52,6 +52,12 @@ module.exports = function(grunt) {
 
     grunt.registerTask('uninstall', ['loadConfig', 'shell:runPeteUserScript:uninstall']);
 
-    grunt.registerTask('reinstall', ['loadConfig', 'shell:runPeteUserScript:uninstall', 'shell:runPeteUserScript:install']);
+    grunt.registerTask('refresh', ['loadConfig', 'shell:runPeteUserScript:refresh']);
+
+    grunt.registerTask('reinstall', ['loadConfig', 'uninstall', 'install']);
+
+    grunt.registerTask('create_schema', ['loadConfig', 'shell:runSuperUserScript:create_schema']);
+
+    grunt.registerTask('recreate', ['loadConfig', 'create_schema', 'install', 'refresh', 'test']);
 
 }

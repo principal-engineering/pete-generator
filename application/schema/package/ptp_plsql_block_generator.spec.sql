@@ -24,7 +24,7 @@ CREATE OR REPLACE PACKAGE ptp_plsql_block_generator AS
         a_in_out_in        IN gtyp_in_out,
         a_subprogram_id_in IN user_arguments.subprogram_id%TYPE DEFAULT NULL,
         a_overload_in      IN user_arguments.overload%TYPE DEFAULT NULL
-    ) RETURN VARCHAR2;
+    ) RETURN CLOB;
 
     -- 
     -- Returns create type body DDL statement for in/out Object Type for PLSQL block  wrapper method
@@ -42,7 +42,7 @@ CREATE OR REPLACE PACKAGE ptp_plsql_block_generator AS
         a_in_out_in        IN gtyp_in_out,
         a_subprogram_id_in IN user_arguments.subprogram_id%TYPE DEFAULT NULL,
         a_overload_in      IN user_arguments.overload%TYPE DEFAULT NULL
-    ) RETURN VARCHAR2;
+    ) RETURN CLOB;
 
     -- 
     -- Returns create package specification DDL statement of wrapper packager for specified package
@@ -67,7 +67,7 @@ CREATE OR REPLACE PACKAGE ptp_plsql_block_generator AS
         a_method_name_in   IN VARCHAR2,
         a_subprogram_id_in IN INTEGER DEFAULT NULL,
         a_overload_in      IN INTEGER DEFAULT NULL
-    ) RETURN VARCHAR2;
+    ) RETURN CLOB;
 
     --
     -- Generate argument types and packages with wrapper methods
