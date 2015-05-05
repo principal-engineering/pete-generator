@@ -1,51 +1,52 @@
-create or replace type body ptt_varchar2_concat is
+CREATE OR REPLACE TYPE BODY ptt_varchar2_concat IS
 
-  static function ODCIAggregateInitialize(ctx in out ptt_varchar2_concat) return number is
-  begin
-    ctx := ptt_varchar2_concat(null);
-    return ODCIConst.Success;
-  end;
+    STATIC FUNCTION ODCIAggregateInitialize(ctx IN OUT ptt_varchar2_concat)
+        RETURN NUMBER IS
+    BEGIN
+        ctx := ptt_varchar2_concat(NULL);
+        RETURN ODCIConst.Success;
+    END;
 
-  member function ODCIAggregateIterate
-  (
-    self  in out ptt_varchar2_concat,
-    value in varchar2
-  ) return number is
-  begin
-    if self.text is null
-    then
-      self.text := value;
-    else
-      self.text := self.text || value;
-    end if;
-    return ODCIConst.Success;
-  end;
+    MEMBER FUNCTION ODCIAggregateIterate
+    (
+        SELF  IN OUT ptt_varchar2_concat,
+        VALUE IN VARCHAR2
+    ) RETURN NUMBER IS
+    BEGIN
+        IF self.text IS NULL
+        THEN
+            self.text := VALUE;
+        ELSE
+            self.text := self.text || VALUE;
+        END IF;
+        RETURN ODCIConst.Success;
+    END;
 
-  member function ODCIAggregateTerminate
-  (
-    self        in ptt_varchar2_concat,
-    returnValue out varchar2,
-    flags       in number
-  ) return number is
-  begin
-    returnValue := self.text;
-    return ODCIConst.Success;
-  end;
+    MEMBER FUNCTION ODCIAggregateTerminate
+    (
+        SELF        IN ptt_varchar2_concat,
+        returnValue OUT VARCHAR2,
+        flags       IN NUMBER
+    ) RETURN NUMBER IS
+    BEGIN
+        returnValue := self.text;
+        RETURN ODCIConst.Success;
+    END;
 
-  member function ODCIAggregateMerge
-  (
-    self in out ptt_varchar2_concat,
-    ctx2 in ptt_varchar2_concat
-  ) return number is
-  begin
-    if ctx2.text is null
-    then
-      null;
-    else
-      self.text := self.text || ',' || ctx2.text;
-    end if;
-    return ODCIConst.Success;
-  end;
+    MEMBER FUNCTION ODCIAggregateMerge
+    (
+        SELF IN OUT ptt_varchar2_concat,
+        ctx2 IN ptt_varchar2_concat
+    ) RETURN NUMBER IS
+    BEGIN
+        IF ctx2.text IS NULL
+        THEN
+            NULL;
+        ELSE
+            self.text := self.text || ',' || ctx2.text;
+        END IF;
+        RETURN ODCIConst.Success;
+    END;
 
-end;
+END;
 /

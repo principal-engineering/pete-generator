@@ -1,3 +1,4 @@
-create or replace function ptf_varchar2_concat(value in varchar2) return varchar2
-  aggregate using ptt_varchar2_concat;
+CREATE OR REPLACE FUNCTION ptf_varchar2_concat(VALUE IN VARCHAR2)
+    RETURN VARCHAR2
+    AGGREGATE USING ptt_varchar2_concat;
 /

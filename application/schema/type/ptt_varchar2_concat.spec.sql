@@ -1,25 +1,26 @@
-create or replace type ptt_varchar2_concat as object
+CREATE OR REPLACE TYPE ptt_varchar2_concat AS OBJECT
 (
-  text varchar2(4000),
-  static function ODCIAggregateInitialize(ctx in out ptt_varchar2_concat) return number,
+    text VARCHAR2(4000),
+    STATIC FUNCTION ODCIAggregateInitialize(ctx IN OUT ptt_varchar2_concat)
+        RETURN NUMBER,
 
-  member function ODCIAggregateIterate
-  (
-    self  in out ptt_varchar2_concat,
-    value in varchar2
-  ) return number,
+    MEMBER FUNCTION ODCIAggregateIterate
+    (
+        SELF  IN OUT ptt_varchar2_concat,
+        VALUE IN VARCHAR2
+    ) RETURN NUMBER,
 
-  member function ODCIAggregateTerminate
-  (
-    self        in ptt_varchar2_concat,
-    returnValue out varchar2,
-    flags       in number
-  ) return number,
+    MEMBER FUNCTION ODCIAggregateTerminate
+    (
+        SELF        IN ptt_varchar2_concat,
+        returnValue OUT VARCHAR2,
+        flags       IN NUMBER
+    ) RETURN NUMBER,
 
-  member function ODCIAggregateMerge
-  (
-    self in out ptt_varchar2_concat,
-    ctx2 in ptt_varchar2_concat
-  ) return number
+    MEMBER FUNCTION ODCIAggregateMerge
+    (
+        SELF IN OUT ptt_varchar2_concat,
+        ctx2 IN ptt_varchar2_concat
+    ) RETURN NUMBER
 )
 /
