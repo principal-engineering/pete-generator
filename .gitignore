@@ -4,3 +4,6 @@ sqlsn/sqlsn_modules/sqlsn-stack/lib/tmp/.stack_path_xxx.sql
 sqlsn/sqlsn_modules/sqlsn-stack/lib/tmp/.stack_path_xxxx.sql
 sqlsn/sqlsn_modules/sqlsn-stack/lib/tmp/.stack_path_xxxxx.sql
 sqlsn/sqlsn_modules/sqlsn-stack/lib/tmp/.x.sql
+.idea
+development.js
+node_modules

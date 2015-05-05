@@ -1,9 +1,9 @@
-grant create materialized view to pete_test;
+prompt init sqlsn
+@sqlsnrc
 
-connect pete_test/pete_test@local
-
-prompt install pete-generator
-@install
+--we need sqlsn run module to traverse directory tree during install
+prompt require sqlsn-run module
+@&&sqlsn_require sqlsn-run
 
 prompt define action and script
 define g_run_action = run
