@@ -57,10 +57,29 @@ CREATE OR REPLACE PACKAGE BODY ptp_test_package_generator AS
     BEGIN
         l_test_pack_name := get_test_pack_name(a_package_name_in);
         l_result         := 'CREATE OR REPLACE PACKAGE ' || l_test_pack_name || ' IS
-    PROCEDURE setup;
-    PROCEDURE teardown;
-    PROCEDURE package_setup;
-    PROCEDURE package_teardown;
+    --
+    -- Automated tests package
+    --
+
+    --
+    -- Hook method - runs once before all test procedures and other hook methods
+    -- 
+    PROCEDURE before_all;
+    
+    --
+    -- Hook method - runs once before each test procedure
+    -- 
+    PROCEDURE before_each;
+
+    --
+    -- Hook method - runs once after each test procedure
+    --
+    PROCEDURE after_each;
+
+    --
+    -- Hook method - runs once after all test procedures and other hook methods
+    --
+    PROCEDURE after_all;
 
     -- test methods
 ';
@@ -210,34 +229,30 @@ CREATE OR REPLACE PACKAGE BODY ptp_test_package_generator AS
         l_test_pack_name := get_test_pack_name(a_package_name_in);
         l_result         := 'CREATE OR REPLACE PACKAGE BODY ' ||
                             l_test_pack_name || ' IS
-    /**
-     * procedure setup is run before each test% procedure
-     */
-    PROCEDURE setup is
+
+    PROCEDURE before_all
+    is
     begin
       null;
-    end setup;
-    /**
-     * procedure teardown is run after each test% procedure
-     */
-    PROCEDURE teardown is
+    end;
+    
+    PROCEDURE before_each
+    is
     begin
       null;
-    end teardown;
-    /**
-     * procedure package_setup is run before setup of first test% procedure
-     */
-    PROCEDURE package_setup is
+    end;
+
+    PROCEDURE after_each
+    is
     begin
       null;
-    end package_setup;
-    /**
-     * procedure teardown is run after teardown of the last test% procedure
-     */
-    PROCEDURE package_teardown is
+    end;
+
+    PROCEDURE after_all
+    is
     begin
       null;
-    end package_teardown;
+    end;
 
     -- test methods
 ';
